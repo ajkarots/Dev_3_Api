@@ -1,0 +1,16 @@
+# Entornos virtuales
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Variables de entorno y credenciales
+.env
+firebase-credentials.json
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
