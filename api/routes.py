@@ -18,7 +18,7 @@ def obtener_productos():
 @token_required
 def crear_producto():
     datos = request.get_json()
-    nuevo_producto = Producto(nombre=datos['nombre'], precio=datos['precio'], stock=datos.get('stock', 0))
+    nuevo_producto = Producto(nombre=datos['nombre'], precio=datos['precio'], stock=datos.get('stock', 0), imagen=datos.get('imagen'))
     db.session.add(nuevo_producto)
     db.session.commit()
     return jsonify({"mensaje": "Producto creado", "id": nuevo_producto.id}), 201
