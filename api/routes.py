@@ -24,6 +24,23 @@ def crear_producto():
     return jsonify({"mensaje": "Producto creado", "id": nuevo_producto.id}), 201
 
 # --- RUTAS DE USUARIOS ---
+
+@api_bp.route('/usuarios', methods=['GET'])
+@token_required # Protegemos la ruta para que solo usuarios logueados (o admins) la vean
+def obtener_todos_usuarios():
+    usuarios = Usuario.query.all()
+    resultado = []
+    for u in usuarios:
+        resultado.append({
+            "id": u.id,
+            "firebase_uid": u.firebase_uid,
+            "nombre": u.nombre,
+            "correo": u.correo,
+            "rol": u.rol,
+            "fecha_registro": u.created_at.strftime("%Y-%m-%d %H:%M:%S") if u.created_at else None
+        })
+    return jsonify(resultado), 200
+
 @api_bp.route('/usuarios', methods=['POST'])
 def registrar_usuario():
     datos = request.get_json()
@@ -37,6 +54,32 @@ def registrar_usuario():
     return jsonify({"mensaje": "Usuario registrado", "id": nuevo_usuario.id}), 201
 
 # --- RUTAS DE COMPRAS ---
+@api_bp.route('/compras', methods=['GET'])
+@token_required
+def obtener_todas_compras():
+    compras = Compra.query.all()
+    resultado = []
+    for c in compras:
+        # Buscamos los detalles de esta compra en particular
+        detalles_db = DetalleCompra.query.filter_by(compra_id=c.id).all()
+        detalles_formateados = []
+        for d in detalles_db:
+            detalles_formateados.append({
+                "producto_id": d.producto_id,
+                "cantidad": d.cantidad,
+                "subtotal": float(d.subtotal)
+            })
+
+        resultado.append({
+            "id": c.id,
+            "usuario_id": c.usuario_id,
+            "total": float(c.total),
+            "estado": c.estado,
+            "fecha": c.created_at.strftime("%Y-%m-%d %H:%M:%S") if c.created_at else None,
+            "detalles": detalles_formateados
+        })
+    return jsonify(resultado), 200
+
 @api_bp.route('/compras', methods=['POST'])
 @token_required
 def registrar_compra():
