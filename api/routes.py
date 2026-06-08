@@ -42,37 +42,7 @@ def eliminar_producto(id):
         "mensaje": "Producto eliminado correctamente"
     }), 200
     
-    @api_bp.route('/productos/<int:id>', methods=['PATCH'])
-@token_required
-def editar_producto(id):
-
-    producto = Producto.query.get(id)
-
-    if not producto:
-        return jsonify({"error": "Producto no encontrado"}), 404
-
-    datos = request.get_json()
-
-    if 'nombre' in datos:
-        producto.nombre = datos['nombre']
-
-    if 'descripcion' in datos:
-        producto.descripcion = datos['descripcion']
-
-    if 'precio' in datos:
-        producto.precio = datos['precio']
-
-    if 'stock' in datos:
-        producto.stock = datos['stock']
-
-    if 'imagen' in datos:
-        producto.imagen = datos['imagen']
-
-    db.session.commit()
-
-    return jsonify({
-        "mensaje": "Producto actualizado correctamente"
-    }), 200
+    
 
 # --- RUTAS DE USUARIOS ---
 
