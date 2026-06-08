@@ -13,13 +13,15 @@ class Usuario(db.Model):
 
 class Producto(db.Model):
     __tablename__ = 'productos'
+
     id = db.Column(db.BigInteger, primary_key=True)
-    nombre = db.Column(db.String, nullable=False)
-    descripcion = db.Column(db.String)
-    precio = db.Column(db.Numeric(10, 2), nullable=False)
-    stock = db.Column(db.Integer, default=0)
-    imagen = db.Column(db.String)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    nombre = db.Column(db.Text)
+    descripcion = db.Column(db.Text)
+    precio = db.Column(db.Numeric(10,2))
+    stock = db.Column(db.Integer)
+    imagen = db.Column(db.Text)
+    eliminado = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime)
 
 class Compra(db.Model):
     __tablename__ = 'compras'

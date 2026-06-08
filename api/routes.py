@@ -11,7 +11,7 @@ def index():
 # --- RUTAS DE PRODUCTOS ---
 @api_bp.route('/productos', methods=['GET'])
 def obtener_productos():
-    productos = Producto.query.all()
+    productos = Producto.query.filter_by(eliminado=False).all()
     return jsonify([{"id": p.id, "nombre": p.nombre, "precio": float(p.precio), "stock": p.stock} for p in productos]), 200
 
 @api_bp.route('/productos', methods=['POST'])
@@ -22,6 +22,57 @@ def crear_producto():
     db.session.add(nuevo_producto)
     db.session.commit()
     return jsonify({"mensaje": "Producto creado", "id": nuevo_producto.id}), 201
+
+# Borrrado logico de productos 
+
+@api_bp.route('/productos/<int:id>', methods=['DELETE'])
+@token_required
+def eliminar_producto(id):
+
+    producto = Producto.query.get(id)
+
+    if not producto:
+        return jsonify({"error": "Producto no encontrado"}), 404
+
+    producto.eliminado = True
+
+    db.session.commit()
+
+    return jsonify({
+        "mensaje": "Producto eliminado correctamente"
+    }), 200
+    
+    @api_bp.route('/productos/<int:id>', methods=['PATCH'])
+@token_required
+def editar_producto(id):
+
+    producto = Producto.query.get(id)
+
+    if not producto:
+        return jsonify({"error": "Producto no encontrado"}), 404
+
+    datos = request.get_json()
+
+    if 'nombre' in datos:
+        producto.nombre = datos['nombre']
+
+    if 'descripcion' in datos:
+        producto.descripcion = datos['descripcion']
+
+    if 'precio' in datos:
+        producto.precio = datos['precio']
+
+    if 'stock' in datos:
+        producto.stock = datos['stock']
+
+    if 'imagen' in datos:
+        producto.imagen = datos['imagen']
+
+    db.session.commit()
+
+    return jsonify({
+        "mensaje": "Producto actualizado correctamente"
+    }), 200
 
 # --- RUTAS DE USUARIOS ---
 
@@ -41,22 +92,39 @@ def obtener_todos_usuarios():
         })
     return jsonify(resultado), 200
 
+#@api_bp.route('/usuarios/<int:id>', methods=['DELETE'])
+#@token_required
+#def eliminar_usuario():
+    
+ #   usuario = Usuario.query.get(id);
+    
+  #  if not usuario:
+      #  return jsonify({"Error" : "Usuario no encontrado"}), 404
+    
+   # db.session.delete(usuario)
+    #db.session.commit()
+    
+   # return jsonify({
+                    
+    #                "Mensaje" : "Usuario eliminado correctamente"
+     #               }), 200
+    
 @api_bp.route('/usuarios/<int:id>', methods=['DELETE'])
 @token_required
-def eliminar_usuario():
-    
-    usuario = Usuario.query.get(id);
-    
+def eliminar_usuario(id):
+
+    usuario = Usuario.query.get(id)
+
     if not usuario:
-        return jsonify({"Error" : "Usuario no encontrado"}), 404
-    
-    db.session.delete(usuario)
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    usuario.eliminado = True
+
     db.session.commit()
-    
+
     return jsonify({
-                    
-                    "Mensaje" : "Usuario eliminado correctamente"
-                    }), 200
+        "mensaje": "Usuario eliminado correctamente"
+    }), 200
     
 @api_bp.route('/usuarios/<int:id>', methods= ['PUT'])    
 @token_required
@@ -80,6 +148,8 @@ def editar_usuario(id):
 
     db.session.commit()
     return jsonify({"mensaje": "Usuario actualizado", "id": usuario.id}), 200
+
+
 
 @api_bp.route('/usuarios', methods=['POST'])
 def registrar_usuario():
