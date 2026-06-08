@@ -41,6 +41,46 @@ def obtener_todos_usuarios():
         })
     return jsonify(resultado), 200
 
+@api_bp.route('/usuarios/<int:id>', methods=['DELETE'])
+@token_required
+def eliminar_usuario():
+    
+    usuario = Usuario.query.get(id);
+    
+    if not usuario:
+        return jsonify({"Error" : "Usuario no encontrado"}), 404
+    
+    db.session.delete(usuario)
+    db.session.commit()
+    
+    return jsonify({
+                    
+                    "Mensaje" : "Usuario eliminado correctamente"
+                    }), 200
+    
+@api_bp.route('/usuarios/<int:id>', methods= ['PUT'])    
+@token_required
+def editar_usuario(id):
+    
+    usuario = Usuario.query.get(id)
+    
+    if not usuario:
+        return jsonify({"Error": "Usuario no encontrado"}), 404
+    
+    datos = request.get_json();
+    
+    if 'nombre' in datos:
+        usuario.nombre = datos['nombre']
+    
+    if 'correo' in datos:
+        usuario.correo = datos['correo']
+        
+    if 'rol' in datos:
+        usuario.rol = datos['rol']
+
+    db.session.commit()
+    return jsonify({"mensaje": "Usuario actualizado", "id": usuario.id}), 200
+
 @api_bp.route('/usuarios', methods=['POST'])
 def registrar_usuario():
     datos = request.get_json()
